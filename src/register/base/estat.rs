@@ -41,18 +41,13 @@ impl Estat {
         }
         let ecode = self.ecode();
         if ecode == 0 {
-            // 仅当 CSR.ECFG.VS=0 时，表示是中断
-            let ecfg_vs = ecfg::read().vs();
-            if ecfg_vs == 0 {
-                // 读取中断位
-                let ie = self.is();
-                for index in (0..13).rev() {
-                    if ie.get_bit(index) {
-                        return Trap::Interrupt(Interrupt::from_usize(index));
-                    }
+            // 读取中断位
+            let ie = self.is();
+            for index in (0..13).rev() {
+                if ie.get_bit(index) {
+                    return Trap::Interrupt(Interrupt::from_usize(index));
                 }
             }
-            return Trap::Unknown;
         }
         let sub_ecode = self.esubcode();
         match ecode {
